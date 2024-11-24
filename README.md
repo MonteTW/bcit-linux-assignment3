@@ -16,6 +16,20 @@ sudo pacman -S nginx
 sudo pacman -S ufw
 ```
 
+## Files
+1. generate_index<br>
+   The script that automatically generates index.html.
+2. generate-index.service<br>
+   The .service file that can execute the script that should be copied to `/etc/systemd/system/`
+3. generate-index.timer<br>
+   The .timer file that activates the .service file everyday 5 am that should be copied to `/etc/systemd/system/`
+4. nginx.conf<br>
+   The `nginx` config file that should be copied to `/etc/nginx/nginx.conf`   
+5. index.conf<br>
+   The server block file that should be copied to `/etc/nginx/sites-available` and make a symbolic link to `/etc/nginx/sites-enabled`
+6. screenshot.png<br>
+   The success screenshot of the index.html output by link to the IP address through a browser.
+
 ## Step 1: Create a System User
 
 Create a user `webgen` with the command:
@@ -25,7 +39,9 @@ sudo useradd -r -m -d /var/lib/webgen -s /usr/bin/nologin webgen
 - `-s /usr/bin/nologin` is a non-login user
 - `-m -d /var/lib/webgen` is making a home directory at the path of `/var/lib/webgen`
 
-**why?**
+The reason why we are creating a system user with nologin shell to contain the script and files for the server is for security reasons:
+1. Setting the user with nologin shell to make sure that no interactive login is allowed, so that it's more difficult for hackers to make damages by brute forcing into the account
+2. Isolating the system running from regular users can prevent accidental adjustments breaking the system or the `nginx` 
 
 ## Step 2: Create Certain Directories 
 Use `mkdir` to create the directories `bin` and `HTML` inside `/var/lib/webgen` to make the tree as below:
@@ -117,6 +133,11 @@ Copy `index.conf` to `/etc/nginx/sites-available`
 sudo cp /var/lib/webgen/bin/index.conf /etc/nginx/sites-available/
 ```
 
+Make a symbolic link to `/etc/nginx/sites-available`
+```bash
+ln -s /etc/nginx/sites-available/index.conf /etc/nginx/sites-enabled/index.conf
+```
+
 Test the config file
 ```bash
 sudo nginx -t
@@ -166,3 +187,21 @@ sudo ufw status verbose
 ```
 
 ## Extra: Script Enhancement
+Adding additional system information
+1. Ram usage
+```bash
+free -m
+```
+By using the command we can see the basic ram usage of the system, and use `>>` to append information after the original information section.<br>
+
+Use `awd` to print the second line to the output file with positional parameters to specify the information we need.<br>
+   
+1. Disk usage
+```bash
+df -h | head -n 4
+```
+By using the command we can see the disk usage of the system, and use `>>` to append information after the ram usage section.<br>
+
+Since only top 4 lines of the information contains disk usage from the system, we show only the top 4 lines by using `head -n 4` to reach the result.<br>
+
+Use `awd` to print the lines after the title line to the output file with positional parameters to specify the information we need.<br>
