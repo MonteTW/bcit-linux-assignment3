@@ -39,9 +39,10 @@ sudo useradd -r -m -d /var/lib/webgen -s /usr/bin/nologin webgen
 - `-s /usr/bin/nologin` is a non-login user
 - `-m -d /var/lib/webgen` is making a home directory at the path of `/var/lib/webgen`
 
-The reason why we are creating a system user with nologin shell to contain the script and files for the server is for security reasons:
-1. Setting the user with nologin shell to make sure that no interactive login is allowed, so that it's more difficult for hackers to make damages by brute forcing into the account
-2. Isolating the system running from regular users can prevent accidental adjustments breaking the system or the `nginx` 
+>The reason why we are creating a system user with `nologin` shell to contain the script and files for the server is for security reasons:
+>
+>1. Setting the user with nologin shell to make sure that no interactive login is allowed, so that it's more difficult for hackers to make damages by brute forcing into the account
+>2. Isolating the system running from regular users can prevent accidental adjustments breaking the system or the `nginx` 
 
 ## Step 2: Create Certain Directories 
 Use `mkdir` to create the directories `bin` and `HTML` inside `/var/lib/webgen` to make the tree as below:
@@ -51,6 +52,10 @@ Use `mkdir` to create the directories `bin` and `HTML` inside `/var/lib/webgen` 
 └── HTML
 ```
 
+```bash
+sudo mkdir /var/lib/webgen/bin
+sudo mkdir /var/lib/webgen/HTML
+```
 ## Step 3: `git clone` the Files from This Repository 
 Clone the files from this repository to `/var/lib/webgen/bin`
 ```bash
@@ -133,7 +138,7 @@ Copy `index.conf` to `/etc/nginx/sites-available`
 sudo cp /var/lib/webgen/bin/index.conf /etc/nginx/sites-available/
 ```
 
-Make a symbolic link to `/etc/nginx/sites-available`
+Make a symbolic link to `/etc/nginx/sites-enabled`
 ```bash
 ln -s /etc/nginx/sites-available/index.conf /etc/nginx/sites-enabled/index.conf
 ```
@@ -174,6 +179,7 @@ Allowing `ssh` and `http`
 ```bash
 sudo ufw allow ssh
 sudo ufw allow http
+sudo ufw limit ssh
 ```
 
 Turn on the Firewall
@@ -196,7 +202,7 @@ By using the command we can see the basic ram usage of the system, and use `>>` 
 
 Use `awd` to print the second line to the output file with positional parameters to specify the information we need.<br>
    
-1. Disk usage
+2. Disk usage
 ```bash
 df -h | head -n 4
 ```
