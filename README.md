@@ -36,7 +36,8 @@ sudo pacman -S ufw
 6. screenshot.png<br>
    The success screenshot of the index.html output by link to the IP address through a browser.
 
-## Step 1: Create a System User
+## Tutorial
+### Step 1: Create a System User
 
 Create a user `webgen` with the command:
 ```bash
@@ -50,8 +51,10 @@ sudo useradd -r -m -d /var/lib/webgen -s /usr/bin/nologin webgen
 >
 >1. Setting the user with nologin shell to make sure that no interactive login is allowed, and no commands from user webgen is allowed, so that it's more difficult for hackers to make damages by brute forcing into the account
 >2. Isolating the system running from regular users or root can prevent accidental adjustments breaking the system, the server, or the `nginx` 
+>
+>Reference: https://www.paloaltonetworks.ca/cyberpedia/what-is-the-principle-of-least-privilege
 
-## Step 2: Create Certain Directories 
+### Step 2: Create Certain Directories 
 Use `mkdir` to create the directories `bin` and `HTML` inside `/var/lib/webgen` to make the tree as below:
 ```
 /var/lib/webgen/
@@ -63,14 +66,14 @@ Use `mkdir` to create the directories `bin` and `HTML` inside `/var/lib/webgen` 
 sudo mkdir /var/lib/webgen/bin
 sudo mkdir /var/lib/webgen/HTML
 ```
-## Step 3: `git clone` the Files from This Repository 
+### Step 3: `git clone` the Files from This Repository 
 Clone the files from this repository to `/var/lib/webgen/bin`
 ```bash
 cd /var/lib/webgen/bin
 git clone <Repository URL>
 ```
 
-## Step 4: Make the Files Executable and Change Ownership
+### Step 4: Make the Files Executable and Change Ownership
 Make the files in `/var/lib/webgen/bin` executable
 ```bash
 sudo chmod 755 *
@@ -81,7 +84,7 @@ Change the ownership of `/var/lib/webgen` with all the subdirectories and files 
 sudo chown -R webgen:webgen /var/lib/webgen
 ```
 
-## Step 4: .service File
+### Step 5: .service File
 Copy the service file to `/etc/systemd/system/`
 ```bash
 sudo cp /var/lib/webgen/bin/generate-index.service /etc/systemd/system/
@@ -99,7 +102,7 @@ systemctl status generate-index
 
 Check if there's an `index.html` generated inside `/var/lib/webgen/HTML`
 
-## Step 5: .timer File
+### Step 6: .timer File
 Copy the timer file to `/etc/systemd/system/`
 ```bash
 sudo cp /var/lib/webgen/bin/generate-index.timer /etc/systemd/system/
@@ -126,7 +129,7 @@ Check the timer is counting at the background, and check the time left from now 
 systemctl list-timers
 ```
 
-## Step 6: `nginx` Configuration
+### Step 7: `nginx` Configuration
 
 Replace the `/etc/nginx/nginx.conf` file by `nginx.conf` file
 ```bash
@@ -172,10 +175,12 @@ systemctl status nginx
 >
 >we can disable a site by unlink the active symbolic link:
 >`unlink /etc/nginx/sites-enabled/index.conf`
+>
+>Reference: https://wiki.archlinux.org/title/Nginx
 
 Now, check the server is working as you want by put the IP address of your droplet to a browser to make sure the page that display your system information is implemented
 
-## Step 8: `ufw` configuration
+### Step 8: `ufw` configuration
 >**==IMPORTANT==**
 >make sure you allow `ssh` and `http` before you run `sudo ufw enable` to enable the firewall
 
