@@ -6,12 +6,18 @@ This is an instruction to help you who has a droplet with Arch Linux operating s
 sudo pacman -Syu
 ```
 
-2. Install `nginx` module
+2. Reboot the system
+```bash
+sudo reboot 
+```
+Please wait a few minutes to wait for the droplet is done the reboot, then connect to the droplet again and continue the steps below.
+
+3. Install `nginx` module
 ```bash
 sudo pacman -S nginx
 ```
 
-3. Install `ufw` module
+4. Install `ufw` module
 ```bash
 sudo pacman -S ufw
 ```
@@ -37,12 +43,13 @@ Create a user `webgen` with the command:
 sudo useradd -r -m -d /var/lib/webgen -s /usr/bin/nologin webgen
 ```
 - `-s /usr/bin/nologin` is a non-login user
+- `-r` make the new user as a system user 
 - `-m -d /var/lib/webgen` is making a home directory at the path of `/var/lib/webgen`
 
->The reason why we are creating a system user with `nologin` shell to contain the script and files for the server is for security reasons:
+>The reasons why we are creating a system user with `nologin` shell to contain and execute the script and files for the server is due to security reasons:
 >
->1. Setting the user with nologin shell to make sure that no interactive login is allowed, so that it's more difficult for hackers to make damages by brute forcing into the account
->2. Isolating the system running from regular users can prevent accidental adjustments breaking the system or the `nginx` 
+>1. Setting the user with nologin shell to make sure that no interactive login is allowed, and no commands from user webgen is allowed, so that it's more difficult for hackers to make damages by brute forcing into the account
+>2. Isolating the system running from regular users or root can prevent accidental adjustments breaking the system, the server, or the `nginx` 
 
 ## Step 2: Create Certain Directories 
 Use `mkdir` to create the directories `bin` and `HTML` inside `/var/lib/webgen` to make the tree as below:
@@ -69,7 +76,7 @@ Make the files in `/var/lib/webgen/bin` executable
 sudo chmod 755 *
 ```
 
-Change the ownership of `/var/lib/webgen` and all the subdirectories and files to user webgen
+Change the ownership of `/var/lib/webgen` with all the subdirectories and files to user `webgen`
 ```bash
 sudo chown -R webgen:webgen /var/lib/webgen
 ```
@@ -93,7 +100,7 @@ systemctl status generate-index
 Check if there's an `index.html` generated inside `/var/lib/webgen/HTML`
 
 ## Step 5: .timer File
-Copy the service file to `/etc/systemd/system/`
+Copy the timer file to `/etc/systemd/system/`
 ```bash
 sudo cp /var/lib/webgen/bin/generate-index.timer /etc/systemd/system/
 ```
@@ -143,12 +150,12 @@ Make a symbolic link to `/etc/nginx/sites-enabled`
 ln -s /etc/nginx/sites-available/index.conf /etc/nginx/sites-enabled/index.conf
 ```
 
-Test the config file
+Test the config file, make sure no error occurs
 ```bash
 sudo nginx -t
 ```
 
-Start and Enable
+Start and enable
 ```bash
 sudo systemctl start nginx
 sudo systemctl enable nginx
@@ -166,9 +173,11 @@ systemctl status nginx
 >we can disable a site by unlink the active symbolic link:
 >`unlink /etc/nginx/sites-enabled/index.conf`
 
-Check the server is working as you want by put the IP address of your droplet to a browser to make sure the page that display your system information is implemented
+Now, check the server is working as you want by put the IP address of your droplet to a browser to make sure the page that display your system information is implemented
 
 ## Step 8: `ufw` configuration
+>**==IMPORTANT==**
+>make sure you allow `ssh` and `http` before you run `sudo ufw enable` to enable the firewall
 
 Enable and start the service of `ufw`
 ```bash
@@ -179,6 +188,10 @@ Allowing `ssh` and `http`
 ```bash
 sudo ufw allow ssh
 sudo ufw allow http
+```
+
+Limit the connect attempt of `ssh`
+```bash
 sudo ufw limit ssh
 ```
 
@@ -187,7 +200,7 @@ Turn on the Firewall
 sudo ufw enable
 ```
 
-Check the firewall is on and working
+Check the firewall is activated
 ```bash
 sudo ufw status verbose
 ```
